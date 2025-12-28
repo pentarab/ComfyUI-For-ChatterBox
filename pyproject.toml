@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-for-chatterbox"
-version = "1.0.1"
+version = "1.0.2"
 description = "ComfyUI custom nodes for Chatterbox TTS with multilingual support (23 languages)"
 readme = "README.md"
 requires-python = ">=3.10"

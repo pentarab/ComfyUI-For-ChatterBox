@@ -61,10 +61,15 @@ def get_or_load_model(device=None):
     cache_key = f"chatterbox_mtl_{device}"
 
     if cache_key not in _MODEL_CACHE:
-        from .src.chatterbox.mtl_tts import ChatterboxMultilingualTTS
+        from .chatterbox_handler import (
+            load_chatterbox_multilingual_tts_model,
+            DEFAULT_MTL_MODEL_PACK_NAME,
+        )
 
         print(f"[Chatterbox] Loading multilingual model on {device}...")
-        _MODEL_CACHE[cache_key] = ChatterboxMultilingualTTS.from_pretrained(device)
+        _MODEL_CACHE[cache_key] = load_chatterbox_multilingual_tts_model(
+            DEFAULT_MTL_MODEL_PACK_NAME, device
+        )
         print("[Chatterbox] Model loaded successfully.")
 
     return _MODEL_CACHE[cache_key]
