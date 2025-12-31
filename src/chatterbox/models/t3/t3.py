@@ -63,6 +63,22 @@ class T3(nn.Module):
             self.cfg = LlamaConfig(**config_dict)
             self.tfmr = LlamaModel(self.cfg)
 
+        # Force eager attention to fix SDPA compatibility with output_attentions
+        # See: https://github.com/resemble-ai/chatterbox/issues/339
+        try:
+            if hasattr(self.tfmr, 'set_attn_implementation'):
+                self.tfmr.set_attn_implementation("eager")
+            if hasattr(self.tfmr.config, '_attn_implementation'):
+                self.tfmr.config._attn_implementation = "eager"
+            # Disable SDPA at PyTorch backend level
+            if hasattr(torch.backends, 'cuda') and hasattr(torch.backends.cuda, 'enable_flash_sdp'):
+                torch.backends.cuda.enable_flash_sdp(False)
+                torch.backends.cuda.enable_mem_efficient_sdp(False)
+                torch.backends.cuda.enable_math_sdp(True)
+            logger.info("Forced eager attention for T3 transformer")
+        except (AttributeError, Exception) as e:
+            logger.warning(f"Could not fully configure eager attention: {e}")
+
         self.dim = self.cfg.hidden_size
         self.deepspeed_patch_applied = False
 
